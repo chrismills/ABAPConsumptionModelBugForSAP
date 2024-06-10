@@ -47,15 +47,10 @@ CLASS zcl_test_read_attach IMPLEMENTATION.
 
         lo_resource = lo_client_proxy->create_resource_for_function( iv_function_name     = zattachment_api_consumption=>gcs_function_import-get_all_originals ).
 
-         "If you send this parameter an exception will be raised in the SAP JSON processing code (/IWCOR/CL_DS_EP_READER_JSON)
-        function_params = value #(
-            linked_sapobject_key = '00010000272'
-            business_object_type_name = 'PMQMEL' ).
 
-        "If you comment the above and send the below it will work
-*        function_params = value #(
-*            linked_sapobject_key = '00010000273'
-*            business_object_type_name = 'PMQMEL' ).
+        function_params = value #(
+            linked_sapobject_key = '00010000273'
+            business_object_type_name = 'PMQMEL' ).
 
         lo_resource->set_parameter( function_params ).
 
@@ -63,7 +58,25 @@ CLASS zcl_test_read_attach IMPLEMENTATION.
         lo_response = lo_resource->create_request(  )->execute( 'GET' ).
 
         lo_response->get_business_data( importing ea_response_data = function_resp ).
-        out->write( 'Sucessfully called api' ).
+        out->write( 'Sucessfully called api #1' ).
+        out->write( |Total records { lines( function_resp ) }| ).
+        out->write( function_resp ).
+
+        out->write( 'Now calling with the dataset that will cause error' ).
+
+        "This will fail in the SAP JSON processing code (/IWCOR/CL_DS_EP_READER_JSON)
+        lo_resource = lo_client_proxy->create_resource_for_function( iv_function_name     = zattachment_api_consumption=>gcs_function_import-get_all_originals ).
+        function_params = value #(
+            linked_sapobject_key = '00010000272'
+            business_object_type_name = 'PMQMEL' ).
+
+        lo_resource->set_parameter( function_params ).
+
+        lo_request = lo_resource->create_request(  ).
+        lo_response = lo_resource->create_request(  )->execute( 'GET' ).
+
+        lo_response->get_business_data( importing ea_response_data = function_resp ).
+        out->write( 'Sucessfully called api #2' ).
         out->write( |Total records { lines( function_resp ) }| ).
         out->write( function_resp ).
 
